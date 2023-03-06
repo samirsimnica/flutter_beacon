@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter_beacon/flutter_beacon.dart';
 import 'package:flutter_beacon_example/controller/requirement_state_controller.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_beacon_example/dio_config.dart';
+
 import 'package:get/get.dart';
 
 class TabScanning extends StatefulWidget {
@@ -15,6 +17,8 @@ class _TabScanningState extends State<TabScanning> {
   final _regionBeacons = <Region, List<Beacon>>{};
   final _beacons = <Beacon>[];
   final controller = Get.find<RequirementStateController>();
+  final DioConfig dioConfig = DioConfig();
+  BaseOptions options = BaseOptions();
 
   @override
   void initState() {
@@ -34,10 +38,24 @@ class _TabScanningState extends State<TabScanning> {
   }
 
   initScanBeacon() async {
+    print(options);
+    final dio = Dio(BaseOptions(
+      headers: {'content-Type': 'application/json'},
+      responseType: ResponseType.json,
+      baseUrl: 'localhost:5000/api/v1/todos',
+      connectTimeout: Duration(seconds: 5),
+      receiveTimeout: Duration(seconds: 15),
+    ));
     await flutterBeacon.initializeScanning;
     if (!controller.authorizationStatusOk ||
         !controller.locationServiceEnabled ||
         !controller.bluetoothEnabled) {
+      print(dio);
+      final response = await dio.post(
+          'RETURNED, authorizationStatusOk=${controller.authorizationStatusOk}, '
+          'locationServiceEnabled=${controller.locationServiceEnabled}, '
+          'bluetoothEnabled=${controller.bluetoothEnabled}');
+      print(response.data);
       print(
           'RETURNED, authorizationStatusOk=${controller.authorizationStatusOk}, '
           'locationServiceEnabled=${controller.locationServiceEnabled}, '
