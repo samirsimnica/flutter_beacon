@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_beacon/flutter_beacon.dart';
 import 'package:flutter_beacon_example/controller/requirement_state_controller.dart';
 import 'package:flutter_beacon_example/view/app_broadcasting.dart';
+import 'package:flutter_beacon_example/view/app_region_adding.dart';
 import 'package:flutter_beacon_example/view/app_scanning.dart';
 import 'package:get/get.dart';
 
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
 
     super.initState();
 
@@ -175,10 +176,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       ),
       body: IndexedStack(
         index: currentIndex,
-        children: [
-          TabScanning(),
-          TabBroadcasting(),
-        ],
+        children: [TabScanning(), TabBroadcasting(), TabRegionAdding()],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
@@ -202,6 +200,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           BottomNavigationBarItem(
             icon: Icon(Icons.bluetooth_audio),
             label: 'Broadcast',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.input),
+            label: 'Add region',
           ),
         ],
       ),

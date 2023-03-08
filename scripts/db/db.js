@@ -1,9 +1,3 @@
-const todos =  [
-    {
-      id: 1,
-      title: "lunch",
-      description: "Go for lunch by 2pm"
-    }
-];
+const logInstances = [];
 
-export default todos;
+export default logInstances;

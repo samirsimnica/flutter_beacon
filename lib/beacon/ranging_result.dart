@@ -24,6 +24,15 @@ class RangingResult {
       };
 
   @override
+  bool operator ==(Object other) {
+    Function deepEq = const DeepCollectionEquality().equals;
+    return identical(this, other) ||
+        other is RangingResult &&
+            region == other.region &&
+            deepEq(beacons, other.beacons);
+  }
+
+  @override
   String toString() {
     return json.encode(toJson);
   }

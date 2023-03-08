@@ -1,6 +1,6 @@
 {
     "scripts": {
-      "dev": "flutter run  "
+      "dev": "flutter run &"
       
     },
     "dependencies": {

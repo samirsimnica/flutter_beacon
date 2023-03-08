@@ -4,6 +4,8 @@ import 'package:flutter_beacon/flutter_beacon.dart';
 import 'package:flutter_beacon_example/controller/requirement_state_controller.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_beacon_example/dio_config.dart';
+import 'package:flutter_beacon_example/services/client/api_client.dart';
+import 'package:flutter_beacon_example/services/client/region_handler.dart';
 
 import 'package:get/get.dart';
 
@@ -14,8 +16,11 @@ class TabScanning extends StatefulWidget {
 
 class _TabScanningState extends State<TabScanning> {
   StreamSubscription<RangingResult>? _streamRanging;
+  ApiClient _apiClient = ApiClient();
   final _regionBeacons = <Region, List<Beacon>>{};
   final _beacons = <Beacon>[];
+  final _regionHandler = RegionHandler();
+  List<RangingResult> _scanningResults = [];
   final controller = Get.find<RequirementStateController>();
   final DioConfig dioConfig = DioConfig();
   BaseOptions options = BaseOptions();
@@ -23,7 +28,13 @@ class _TabScanningState extends State<TabScanning> {
   @override
   void initState() {
     super.initState();
+    checkForInitializations();
+    _regionHandler.addListener(() {
+      checkForInitializations();
+    });
+  }
 
+  checkForInitializations() {
     controller.startStream.listen((flag) {
       if (flag == true) {
         initScanBeacon();
@@ -38,41 +49,16 @@ class _TabScanningState extends State<TabScanning> {
   }
 
   initScanBeacon() async {
-    print(options);
-    final dio = Dio(BaseOptions(
-      headers: {'content-Type': 'application/json'},
-      responseType: ResponseType.json,
-      baseUrl: 'localhost:5000/api/v1/todos',
-      connectTimeout: Duration(seconds: 5),
-      receiveTimeout: Duration(seconds: 15),
-    ));
     await flutterBeacon.initializeScanning;
     if (!controller.authorizationStatusOk ||
         !controller.locationServiceEnabled ||
         !controller.bluetoothEnabled) {
-      print(dio);
-      final response = await dio.post(
-          'RETURNED, authorizationStatusOk=${controller.authorizationStatusOk}, '
-          'locationServiceEnabled=${controller.locationServiceEnabled}, '
-          'bluetoothEnabled=${controller.bluetoothEnabled}');
-      print(response.data);
       print(
-          'RETURNED, authorizationStatusOk=${controller.authorizationStatusOk}, '
-          'locationServiceEnabled=${controller.locationServiceEnabled}, '
+          'RETURNED, authorizationStatusOk=${controller.authorizationStatusOk},'
+          'locationServiceEnabled=${controller.locationServiceEnabled},'
           'bluetoothEnabled=${controller.bluetoothEnabled}');
       return;
     }
-    final regions = <Region>[
-      Region(
-        identifier: 'Cubeacon',
-        proximityUUID: 'CB10023F-A318-3394-4199-A8730C7C1AEC',
-      ),
-      Region(
-        identifier: 'BeaconType2',
-        proximityUUID: '6a84c716-0f2a-1ce9-f210-6a63bd873dd9',
-      ),
-    ];
-
     if (_streamRanging != null) {
       if (_streamRanging!.isPaused) {
         _streamRanging?.resume();
@@ -80,18 +66,22 @@ class _TabScanningState extends State<TabScanning> {
       }
     }
 
-    _streamRanging =
-        flutterBeacon.ranging(regions).listen((RangingResult result) {
-      print(result);
-      if (mounted) {
-        setState(() {
-          _regionBeacons[result.region] = result.beacons;
-          _beacons.clear();
-          _regionBeacons.values.forEach((list) {
-            _beacons.addAll(list);
+    _streamRanging = flutterBeacon
+        .ranging(_regionHandler.regions)
+        .listen((RangingResult result) async {
+      if (!_scanningResults.contains(result)) {
+        _scanningResults.add(result);
+        await _apiClient.sendScanResults(result);
+        if (mounted) {
+          setState(() {
+            _regionBeacons[result.region] = result.beacons;
+            _beacons.clear();
+            _regionBeacons.values.forEach((list) {
+              _beacons.addAll(list);
+            });
+            _beacons.sort(_compareParameters);
           });
-          _beacons.sort(_compareParameters);
-        });
+        }
       }
     });
   }
