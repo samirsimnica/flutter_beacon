@@ -8,6 +8,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter 
+  geolocator: ^9.0.2
+  wifi_scan: ^0.2.1
 
 dev_dependencies:
   flutter_test:

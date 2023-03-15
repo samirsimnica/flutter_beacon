@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter_beacon/flutter_beacon.dart';
 import 'package:flutter_beacon_example/controller/requirement_state_controller.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_beacon_example/dio_config.dart';
-import 'package:flutter_beacon_example/services/client/api_client.dart';
+import 'package:flutter_beacon_example/services/api_client/logging_api_client.dart';
 import 'package:flutter_beacon_example/services/client/region_handler.dart';
+import 'package:flutter_beacon_example/services/geo_location/location_service.dart';
+import 'package:flutter_beacon_example/services/wifi_adapter/wifi_scanning_service.dart';
 
 import 'package:get/get.dart';
 
@@ -16,10 +16,13 @@ class TabScanning extends StatefulWidget {
 
 class _TabScanningState extends State<TabScanning> {
   StreamSubscription<RangingResult>? _streamRanging;
-  ApiClient _apiClient = ApiClient();
+  LoggingApiClient _apiClient = LoggingApiClient();
   final Region _kPredefinedRegion = Region(
       proximityUUID: '17fb0cdd-fbd1-4911-b3bc-e6b1583a073f',
       identifier: 'Jonas');
+  final _locationService = LocationService();
+  final _wifiService = WifiScanningService();
+
   final _beacons = <Beacon>[];
   final _regionHandler = RegionHandler();
   final controller = Get.find<RequirementStateController>();
@@ -81,9 +84,20 @@ class _TabScanningState extends State<TabScanning> {
           });
           _beacons.sort(_compareParameters);
         });
-        await _apiClient.sendScanResults(result);
+        //TODO: add time removal addition
+        // for(final beacon in _beacons){
+        //   if(beacon.)
+        // }
+        await _sendScanResults();
       }
     });
+  }
+
+  _sendScanResults() async {
+    final locationData = await _locationService.getLocationData();
+    final wifiData = await _wifiService.getCurrentlyScannedWifiRouters();
+    await _apiClient
+        .sendScanResults(LoggingModel(locationData, wifiData, _beacons));
   }
 
   pauseScanBeacon() async {
