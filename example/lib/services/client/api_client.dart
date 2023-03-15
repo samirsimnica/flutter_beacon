@@ -8,6 +8,6 @@ class ApiClient {
   Future<void> sendScanResults(RangingResult result) async {
     final serializedResult = result.toJson;
     serializedResult['latency'] = DateTime.now().millisecondsSinceEpoch;
-    await _client.post("/logScan", data: serializedResult);
+    await _client.post("/logRegionScan", data: serializedResult);
   }
 }

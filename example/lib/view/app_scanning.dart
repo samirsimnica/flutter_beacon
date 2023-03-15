@@ -17,13 +17,12 @@ class TabScanning extends StatefulWidget {
 class _TabScanningState extends State<TabScanning> {
   StreamSubscription<RangingResult>? _streamRanging;
   ApiClient _apiClient = ApiClient();
-  final _regionBeacons = <Region, List<Beacon>>{};
+  final Region _kPredefinedRegion = Region(
+      proximityUUID: '17fb0cdd-fbd1-4911-b3bc-e6b1583a073f',
+      identifier: 'Jonas');
   final _beacons = <Beacon>[];
   final _regionHandler = RegionHandler();
-  List<RangingResult> _scanningResults = [];
   final controller = Get.find<RequirementStateController>();
-  final DioConfig dioConfig = DioConfig();
-  BaseOptions options = BaseOptions();
 
   @override
   void initState() {
@@ -67,21 +66,22 @@ class _TabScanningState extends State<TabScanning> {
     }
 
     _streamRanging = flutterBeacon
-        .ranging(_regionHandler.regions)
-        .listen((RangingResult result) async {
-      if (!_scanningResults.contains(result)) {
-        _scanningResults.add(result);
-        await _apiClient.sendScanResults(result);
-        if (mounted) {
-          setState(() {
-            _regionBeacons[result.region] = result.beacons;
-            _beacons.clear();
-            _regionBeacons.values.forEach((list) {
-              _beacons.addAll(list);
-            });
-            _beacons.sort(_compareParameters);
+        .ranging([_kPredefinedRegion, ..._regionHandler.regions]).listen(
+            (RangingResult result) async {
+      if (mounted) {
+        setState(() {
+          result.beacons.forEach((e) {
+            final index = _beacons.indexOf(e);
+            // found
+            if (index != -1) {
+              _beacons[index] = e;
+            } else {
+              _beacons.add(e);
+            }
           });
-        }
+          _beacons.sort(_compareParameters);
+        });
+        await _apiClient.sendScanResults(result);
       }
     });
   }

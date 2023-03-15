@@ -22,7 +22,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this);
 
     super.initState();
 
@@ -70,20 +70,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    print('AppLifecycleState = $state');
-    if (state == AppLifecycleState.resumed) {
-      if (_streamBluetooth != null) {
-        if (_streamBluetooth!.isPaused) {
-          _streamBluetooth?.resume();
-        }
-      }
-      await checkAllRequirements();
-    } else if (state == AppLifecycleState.paused) {
-      _streamBluetooth?.pause();
-    }
-  }
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) async {
+  //   print('AppLifecycleState = $state');
+  //   if (state == AppLifecycleState.resumed) {
+  //     if (_streamBluetooth != null) {
+  //       if (_streamBluetooth!.isPaused) {
+  //         _streamBluetooth?.resume();
+  //       }
+  //     }
+  //     await checkAllRequirements();
+  //   } else if (state == AppLifecycleState.paused) {
+  //     _streamBluetooth?.pause();
+  //   }
+  // }
 
   @override
   void dispose() {
