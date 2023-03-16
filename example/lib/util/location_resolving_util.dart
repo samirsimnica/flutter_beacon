@@ -9,8 +9,9 @@ class Tuple<K, V> {
 double kMinimumDistanceInMeters = 4;
 
 Map<String, List<int>> locations = {
-  "Lane 5": [116, 107, 117, 114],
-  "Lane 6": [107, 118, 115]
+  "Lane 7": [116, 117, 107, 114],
+  "Lane 5": [118, 115, 120, 106],
+  "Lane 6": [107, 118, 114, 115]
 };
 
 Tuple<String, List<int>>? locationFound(List<Beacon> beacons, int neededHits,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_beacon/flutter_beacon.dart';
-import 'package:flutter_beacon_example/services/client/region_handler.dart';
+
+import '../services/client/region_handler.dart';
 
 class TabRegionAdding extends StatefulWidget {
   const TabRegionAdding({Key? key}) : super(key: key);
