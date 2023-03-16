@@ -34,11 +34,14 @@ class Beacon {
   /// The accuracy of distance of beacon in meter.
   final double accuracy;
 
+  ///The last scan of a beacon
+  DateTime lastScan;
+
   /// The proximity of beacon.
   final Proximity? _proximity;
 
   /// Create beacon object.
-  const Beacon({
+  Beacon({
     required this.proximityUUID,
     this.macAddress,
     required this.major,
@@ -48,6 +51,7 @@ class Beacon {
     required this.accuracy,
     Proximity? proximity,
   })  : this.rssi = rssi ?? -1,
+        this.lastScan = DateTime.now(),
         this._proximity = proximity;
 
   /// Create beacon object from json.

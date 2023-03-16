@@ -144,6 +144,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   : handleOpenLocationSettings,
             );
           }),
+          (() {
+            bool? isPaused =
+                _streamBluetooth != null ? _streamBluetooth!.isPaused : true;
+
+            return IconButton(
+              tooltip: isPaused ? 'Pause Scan' : 'Start Scan',
+              icon: isPaused ? Icon(Icons.pause) : Icon(Icons.start),
+              onPressed: () {
+                if (isPaused) {
+                  _streamBluetooth?.resume();
+                } else {
+                  _streamBluetooth?.pause();
+                }
+              },
+              color: isPaused ? Colors.redAccent : Colors.lightBlueAccent,
+            );
+          })(),
           Obx(() {
             final state = controller.bluetoothState.value;
 

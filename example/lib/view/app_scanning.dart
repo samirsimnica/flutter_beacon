@@ -5,7 +5,9 @@ import 'package:flutter_beacon_example/controller/requirement_state_controller.d
 import 'package:flutter_beacon_example/services/api_client/logging_api_client.dart';
 import 'package:flutter_beacon_example/services/client/region_handler.dart';
 import 'package:flutter_beacon_example/services/geo_location/location_service.dart';
+import 'package:flutter_beacon_example/services/notifications/notification_service.dart';
 import 'package:flutter_beacon_example/services/wifi_adapter/wifi_scanning_service.dart';
+import 'package:flutter_beacon_example/util/location_resolving_util.dart';
 
 import 'package:get/get.dart';
 
@@ -20,10 +22,12 @@ class _TabScanningState extends State<TabScanning> {
   final Region _kPredefinedRegion = Region(
       proximityUUID: '17fb0cdd-fbd1-4911-b3bc-e6b1583a073f',
       identifier: 'Jonas');
+  bool _hitPlace = false;
   final _locationService = LocationService();
   final _wifiService = WifiScanningService();
+  final _notificationService = NotificationService();
 
-  final _beacons = <Beacon>[];
+  List<Beacon> _beacons = [];
   final _regionHandler = RegionHandler();
   final controller = Get.find<RequirementStateController>();
 
@@ -61,13 +65,10 @@ class _TabScanningState extends State<TabScanning> {
           'bluetoothEnabled=${controller.bluetoothEnabled}');
       return;
     }
-    if (_streamRanging != null) {
-      if (_streamRanging!.isPaused) {
-        _streamRanging?.resume();
-        return;
-      }
-    }
 
+    if (_streamRanging != null) {
+      await _streamRanging?.cancel();
+    }
     _streamRanging = flutterBeacon
         .ranging([_kPredefinedRegion, ..._regionHandler.regions]).listen(
             (RangingResult result) async {
@@ -82,13 +83,27 @@ class _TabScanningState extends State<TabScanning> {
               _beacons.add(e);
             }
           });
-          _beacons.sort(_compareParameters);
         });
-        //TODO: add time removal addition
-        // for(final beacon in _beacons){
-        //   if(beacon.)
-        // }
-        await _sendScanResults();
+        final lastAcceptableTime =
+            DateTime.now().subtract(Duration(seconds: 10));
+        _beacons = _beacons
+            .where((e) => e.lastScan.isAfter(lastAcceptableTime))
+            .toList();
+
+        for (final key in locations.keys) {
+          final result = locationFound(_beacons, 4, key, locations[key]!);
+          if (result != null && !_hitPlace) {
+            _notificationService.setNotification(
+                context,
+                "Hit place ${result.firstValue}",
+                "Hit beacons ${result.secondValue.join(",")}");
+            _hitPlace = true;
+            break;
+          }
+        }
+        _beacons.sort(_compareParameters);
+
+        //await _sendScanResults();
       }
     });
   }
@@ -144,6 +159,9 @@ class _TabScanningState extends State<TabScanning> {
                         beacon.proximityUUID,
                         style: TextStyle(fontSize: 15.0),
                       ),
+                      onTap: () {
+                        _hitPlace = false;
+                      },
                       subtitle: new Row(
                         mainAxisSize: MainAxisSize.max,
                         children: <Widget>[
