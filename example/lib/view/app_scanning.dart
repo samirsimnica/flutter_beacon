@@ -3,13 +3,14 @@ import 'dart:async';
 import 'package:flutter_beacon/flutter_beacon.dart';
 import 'package:flutter_beacon_example/controller/requirement_state_controller.dart';
 import 'package:flutter_beacon_example/services/api_client/logging_api_client.dart';
-import 'package:flutter_beacon_example/services/client/region_handler.dart';
 import 'package:flutter_beacon_example/services/geo_location/location_service.dart';
 import 'package:flutter_beacon_example/services/notifications/notification_service.dart';
 import 'package:flutter_beacon_example/services/wifi_adapter/wifi_scanning_service.dart';
 import 'package:flutter_beacon_example/util/location_resolving_util.dart';
 
 import 'package:get/get.dart';
+
+import '../services/region_handler.dart';
 
 class TabScanning extends StatefulWidget {
   @override
