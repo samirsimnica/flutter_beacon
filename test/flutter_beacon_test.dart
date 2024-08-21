@@ -89,7 +89,7 @@ void main() {
           return Region.fromJson(arg);
         }).toList();
 
-        ServicesBinding.instance!.defaultBinaryMessenger.handlePlatformMessage(
+        ServicesBinding.instance.defaultBinaryMessenger.handlePlatformMessage(
           rangingChannel.name,
           const StandardMethodCodec().encodeSuccessEnvelope({
             'region': regions.first.toJson,
@@ -153,7 +153,7 @@ void main() {
           }
 
           if (result != null) {
-            ServicesBinding.instance!.defaultBinaryMessenger
+            ServicesBinding.instance.defaultBinaryMessenger
                 .handlePlatformMessage(
               monitoringChannel.name,
               const StandardMethodCodec().encodeSuccessEnvelope(result),
@@ -169,7 +169,7 @@ void main() {
     });
 
     bluetoothChannel.setMockMethodCallHandler((MethodCall methodCall) async {
-      ServicesBinding.instance!.defaultBinaryMessenger.handlePlatformMessage(
+      ServicesBinding.instance.defaultBinaryMessenger.handlePlatformMessage(
         bluetoothChannel.name,
         const StandardMethodCodec().encodeSuccessEnvelope('STATE_ON'),
         (ByteData? data) {},
@@ -178,7 +178,7 @@ void main() {
 
     authorizationChannel
         .setMockMethodCallHandler((MethodCall methodCall) async {
-      ServicesBinding.instance!.defaultBinaryMessenger.handlePlatformMessage(
+      ServicesBinding.instance.defaultBinaryMessenger.handlePlatformMessage(
         authorizationChannel.name,
         const StandardMethodCodec().encodeSuccessEnvelope('ALLOWED'),
         (ByteData? data) {},
